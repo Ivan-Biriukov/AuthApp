@@ -13,6 +13,17 @@
 		57C37B462BECE08A00BF0B1E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 57C37B452BECE08A00BF0B1E /* Assets.xcassets */; };
 		57C37B492BECE08A00BF0B1E /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 57C37B482BECE08A00BF0B1E /* Base */; };
 		57C37B562BECF28000BF0B1E /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B552BECF28000BF0B1E /* AuthViewModel.swift */; };
+		57C37B582BECF48C00BF0B1E /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 57C37B572BECF48C00BF0B1E /* Colors.xcassets */; };
+		57C37B672BED00CF00BF0B1E /* AppFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B662BED00CF00BF0B1E /* AppFonts.swift */; };
+		57C37B6B2BED05AC00BF0B1E /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B6A2BED05AC00BF0B1E /* AppColors.swift */; };
+		57C37B6E2BED1FC900BF0B1E /* Strings+Estensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B6D2BED1FC900BF0B1E /* Strings+Estensions.swift */; };
+		57C37B702BED493B00BF0B1E /* AppTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B6F2BED493B00BF0B1E /* AppTextField.swift */; };
+		57C37B722BED528500BF0B1E /* UIViewController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B712BED528500BF0B1E /* UIViewController+Extensions.swift */; };
+		57C37B742BED566300BF0B1E /* AppMainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B732BED566300BF0B1E /* AppMainButton.swift */; };
+		57C37B772BEE229900BF0B1E /* AlertPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B762BEE229900BF0B1E /* AlertPresentable.swift */; };
+		57C37B7A2BEE22C900BF0B1E /* AlertModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B792BEE22C900BF0B1E /* AlertModel.swift */; };
+		57C37B7C2BEE231400BF0B1E /* AlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B7B2BEE231400BF0B1E /* AlertBuilder.swift */; };
+		57C37B7E2BEE236000BF0B1E /* CommonALertActionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C37B7D2BEE236000BF0B1E /* CommonALertActionModels.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +35,17 @@
 		57C37B482BECE08A00BF0B1E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		57C37B4A2BECE08A00BF0B1E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		57C37B552BECF28000BF0B1E /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		57C37B572BECF48C00BF0B1E /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
+		57C37B662BED00CF00BF0B1E /* AppFonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFonts.swift; sourceTree = "<group>"; };
+		57C37B6A2BED05AC00BF0B1E /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		57C37B6D2BED1FC900BF0B1E /* Strings+Estensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Strings+Estensions.swift"; sourceTree = "<group>"; };
+		57C37B6F2BED493B00BF0B1E /* AppTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTextField.swift; sourceTree = "<group>"; };
+		57C37B712BED528500BF0B1E /* UIViewController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extensions.swift"; sourceTree = "<group>"; };
+		57C37B732BED566300BF0B1E /* AppMainButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMainButton.swift; sourceTree = "<group>"; };
+		57C37B762BEE229900BF0B1E /* AlertPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentable.swift; sourceTree = "<group>"; };
+		57C37B792BEE22C900BF0B1E /* AlertModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertModel.swift; sourceTree = "<group>"; };
+		57C37B7B2BEE231400BF0B1E /* AlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertBuilder.swift; sourceTree = "<group>"; };
+		57C37B7D2BEE236000BF0B1E /* CommonALertActionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonALertActionModels.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +82,7 @@
 				57C37B532BECE41B00BF0B1E /* Screens */,
 				57C37B522BECE2D500BF0B1E /* Resources */,
 				57C37B502BECE2BB00BF0B1E /* ReusableComponents */,
+				57C37B6C2BED1FB400BF0B1E /* Extensions */,
 			);
 			path = AuthApp;
 			sourceTree = "<group>";
@@ -67,6 +90,9 @@
 		57C37B502BECE2BB00BF0B1E /* ReusableComponents */ = {
 			isa = PBXGroup;
 			children = (
+				57C37B752BEE227F00BF0B1E /* Alert */,
+				57C37B6F2BED493B00BF0B1E /* AppTextField.swift */,
+				57C37B732BED566300BF0B1E /* AppMainButton.swift */,
 			);
 			path = ReusableComponents;
 			sourceTree = "<group>";
@@ -85,6 +111,9 @@
 			children = (
 				57C37B4A2BECE08A00BF0B1E /* Info.plist */,
 				57C37B452BECE08A00BF0B1E /* Assets.xcassets */,
+				57C37B572BECF48C00BF0B1E /* Colors.xcassets */,
+				57C37B662BED00CF00BF0B1E /* AppFonts.swift */,
+				57C37B6A2BED05AC00BF0B1E /* AppColors.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -105,6 +134,26 @@
 				57C37B552BECF28000BF0B1E /* AuthViewModel.swift */,
 			);
 			path = Auth;
+			sourceTree = "<group>";
+		};
+		57C37B6C2BED1FB400BF0B1E /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				57C37B6D2BED1FC900BF0B1E /* Strings+Estensions.swift */,
+				57C37B712BED528500BF0B1E /* UIViewController+Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		57C37B752BEE227F00BF0B1E /* Alert */ = {
+			isa = PBXGroup;
+			children = (
+				57C37B762BEE229900BF0B1E /* AlertPresentable.swift */,
+				57C37B792BEE22C900BF0B1E /* AlertModel.swift */,
+				57C37B7B2BEE231400BF0B1E /* AlertBuilder.swift */,
+				57C37B7D2BEE236000BF0B1E /* CommonALertActionModels.swift */,
+			);
+			path = Alert;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -165,6 +214,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				57C37B582BECF48C00BF0B1E /* Colors.xcassets in Resources */,
 				57C37B462BECE08A00BF0B1E /* Assets.xcassets in Resources */,
 				57C37B492BECE08A00BF0B1E /* Base in Resources */,
 			);
@@ -177,10 +227,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				57C37B6B2BED05AC00BF0B1E /* AppColors.swift in Sources */,
 				57C37B562BECF28000BF0B1E /* AuthViewModel.swift in Sources */,
+				57C37B772BEE229900BF0B1E /* AlertPresentable.swift in Sources */,
 				57C37B412BECE08900BF0B1E /* AuthViewController.swift in Sources */,
+				57C37B7A2BEE22C900BF0B1E /* AlertModel.swift in Sources */,
+				57C37B7C2BEE231400BF0B1E /* AlertBuilder.swift in Sources */,
+				57C37B6E2BED1FC900BF0B1E /* Strings+Estensions.swift in Sources */,
+				57C37B722BED528500BF0B1E /* UIViewController+Extensions.swift in Sources */,
+				57C37B672BED00CF00BF0B1E /* AppFonts.swift in Sources */,
+				57C37B742BED566300BF0B1E /* AppMainButton.swift in Sources */,
 				57C37B3D2BECE08900BF0B1E /* AppDelegate.swift in Sources */,
 				57C37B3F2BECE08900BF0B1E /* SceneDelegate.swift in Sources */,
+				57C37B702BED493B00BF0B1E /* AppTextField.swift in Sources */,
+				57C37B7E2BEE236000BF0B1E /* CommonALertActionModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
