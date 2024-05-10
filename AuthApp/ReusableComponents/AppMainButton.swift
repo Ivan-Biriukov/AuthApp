@@ -9,6 +9,7 @@ final class AppMainButton: UIButton {
     // MARK: - Properties
     
     private var initialText: String
+    private var isFilledWithColor: Bool
     private let constants = Constants()
     
     override var isEnabled: Bool {
@@ -19,8 +20,9 @@ final class AppMainButton: UIButton {
     
     // MARK: - .init()
     
-    init(initialText: String) {
+    init(initialText: String, isFilledWithColor: Bool) {
         self.initialText = initialText
+        self.isFilledWithColor = isFilledWithColor
         super.init(frame: .zero)
         configure()
     }
@@ -43,17 +45,34 @@ private extension AppMainButton {
         setTitle(initialText, for: .normal)
         titleLabel?.font = AppFonts.actionButtonFont
         translatesAutoresizingMaskIntoConstraints = false
-        layer.cornerRadius = constants.cornerRadius
+
+        switch isFilledWithColor {
+        case true:
+            layer.cornerRadius = constants.cornerRadius
+        case false:
+            setTitleColor(AppColors.mainBG, for: .normal)
+        }
     }
     
     func updateButtonAppearanceForState() {
-        switch isEnabled {
-        case true:
-            backgroundColor = AppColors.mainBG
-            setTitleColor(AppColors.defaultTextColor, for: .normal)
-        case false:
-            backgroundColor = AppColors.inactiveBg
-            setTitleColor(AppColors.inactiveText, for: .normal)
+        if isFilledWithColor {
+            switch isEnabled {
+            case true:
+                backgroundColor = AppColors.mainBG
+                setTitleColor(AppColors.defaultTextColor, for: .normal)
+            case false:
+                backgroundColor = AppColors.inactiveBg
+                setTitleColor(AppColors.inactiveText, for: .normal)
+            }
+        } else {
+            switch isEnabled {
+            case true:
+                backgroundColor = .clear
+                setTitleColor(AppColors.mainBG, for: .normal)
+            case false:
+                backgroundColor = .clear
+                setTitleColor(AppColors.inactiveText, for: .normal)
+            }
         }
     }
 }

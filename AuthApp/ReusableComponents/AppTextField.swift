@@ -25,7 +25,10 @@ final class AppTextField: UITextField {
     private let rightSpace = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 0))
     
     private lazy var fieldRightStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 0)), showPasswordButton,rightSpace])
+        let stack = UIStackView(arrangedSubviews: [
+            UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 0)),
+            showPasswordButton,rightSpace
+        ])
         stack.axis = .horizontal
         stack.distribution = .fillEqually
         stack.spacing = -10

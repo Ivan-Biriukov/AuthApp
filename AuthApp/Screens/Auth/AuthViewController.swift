@@ -17,6 +17,9 @@ fileprivate enum Constants {
     static let actionButtonBottomOffsets: CGFloat = -50
     static let actionButtonWidth: CGFloat = UIScreen.main.bounds.width / 1.5
     static let actionButtonHeight: CGFloat = 40
+    static let underlineViewSignInPosition: CGRect = CGRect(x: 20, y: 60, width: 80, height: 4)
+    static let underlineViewSignUpPosition: CGRect = CGRect(x: Int(UIScreen.main.bounds.width) - 110, y: 60, width: 90, height: 4)
+    static let commonInsetValue: CGFloat = 20
 }
 
 // MARK: - AuthViewController
@@ -26,14 +29,50 @@ final class AuthViewController: UIViewController {
     // MARK: - Properties
     
     private let viewModel = AuthViewModel()
+    private var isSignInSelected: Bool = true
     private var cancellables = Set<AnyCancellable>()
     
-    private lazy var titleLabel = UILabel()
+    private lazy var titleLabel: UILabel = {
+        let lb = UILabel()
+        lb.textColor = AppColors.defaultTextColor
+        lb.font = AppFonts.getFont(ofSize: 33, weight: .bold)
+        return lb
+    }()
     private lazy var contentBubbleView = UIView()
+    private lazy var switchToSignInButton = AppMainButton(initialText: "Sign In", isFilledWithColor: false)
+    private lazy var switchToSignUpButton = AppMainButton(initialText: "Sign up", isFilledWithColor: false)
+    
+    private lazy var underlineView: UIView = {
+        let view = UIView(frame: Constants.underlineViewSignInPosition)
+        view.backgroundColor = .black
+        return view
+    }()
+    
     private lazy var loginEmailField = AppTextField(style: .email, placeholderText: "Enter your email")
     private lazy var loginPasswordField = AppTextField(style: .password, placeholderText: "Enter password")
-    private lazy var actionButton = AppMainButton(initialText: "Вход")
+    private lazy var actionButton = AppMainButton(initialText: "Вход", isFilledWithColor: true)
     
+    private lazy var loginStackView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [loginEmailField, loginPasswordField])
+        stack.axis = .vertical
+        stack.distribution = .fill
+        stack.spacing = 25
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    private lazy var registerEmailField = AppTextField(style: .email, placeholderText: "Enter your email (login)")
+    private lazy var registerFirstEnterPasswordField = AppTextField(style: .password, placeholderText: "Create password")
+    private lazy var registerConfirmPasswordField = AppTextField(style: .password, placeholderText: "Repeat password")
+    
+    private lazy var registerStackView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [registerEmailField, registerFirstEnterPasswordField, registerConfirmPasswordField])
+        stack.axis = .vertical
+        stack.distribution = .fill
+        stack.spacing = 25
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
     
     // MARK: - LifeCycle
 
@@ -59,6 +98,8 @@ private extension AuthViewController {
         contentBubbleView.layer.cornerRadius = Constants.contentViewCornerRadius
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         actionButton.addTarget(self, action: #selector(actionButtonPressed), for: .touchUpInside)
+        switchToSignInButton.addTarget(self, action: #selector(switchToSignInTaped), for: .touchUpInside)
+        switchToSignUpButton.addTarget(self, action: #selector(switchToSignUpTaped), for: .touchUpInside)
     }
     
     func addSubviews() {
@@ -67,8 +108,11 @@ private extension AuthViewController {
             view.addSubview($0)
         }
         
-        [loginEmailField,
-         loginPasswordField,
+        [switchToSignInButton,
+         switchToSignUpButton,
+         underlineView,
+         loginStackView,
+         registerStackView,
          actionButton].forEach {
             contentBubbleView.addSubview($0)
         }
@@ -84,15 +128,32 @@ private extension AuthViewController {
             contentBubbleView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             contentBubbleView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            loginEmailField.topAnchor.constraint(equalTo: contentBubbleView.topAnchor, constant: 25),
-            loginEmailField.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
+            switchToSignInButton.leadingAnchor.constraint(equalTo: contentBubbleView.leadingAnchor, constant: Constants.commonInsetValue),
+            switchToSignInButton.topAnchor.constraint(equalTo: contentBubbleView.topAnchor, constant: Constants.commonInsetValue),
+            
+            switchToSignUpButton.trailingAnchor.constraint(equalTo: contentBubbleView.trailingAnchor, constant: -Constants.commonInsetValue),
+            switchToSignUpButton.topAnchor.constraint(equalTo: contentBubbleView.topAnchor, constant: Constants.commonInsetValue),
+            
+            loginStackView.topAnchor.constraint(equalTo: switchToSignInButton.bottomAnchor, constant: Constants.commonInsetValue),
+            loginStackView.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
+            
+            registerStackView.topAnchor.constraint(equalTo: switchToSignInButton.bottomAnchor, constant: Constants.commonInsetValue),
+            registerStackView.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
+            
             loginEmailField.heightAnchor.constraint(equalToConstant: Constants.fieldHeight),
             loginEmailField.widthAnchor.constraint(equalToConstant: Constants.fieldsWidth),
-            
-            loginPasswordField.topAnchor.constraint(equalTo: loginEmailField.bottomAnchor, constant: 25),
-            loginPasswordField.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
+
             loginPasswordField.heightAnchor.constraint(equalToConstant: Constants.fieldHeight),
             loginPasswordField.widthAnchor.constraint(equalToConstant: Constants.fieldsWidth),
+            
+            registerEmailField.heightAnchor.constraint(equalToConstant: Constants.fieldHeight),
+            registerEmailField.widthAnchor.constraint(equalToConstant: Constants.fieldsWidth),
+            
+            registerFirstEnterPasswordField.heightAnchor.constraint(equalToConstant: Constants.fieldHeight),
+            registerFirstEnterPasswordField.widthAnchor.constraint(equalToConstant: Constants.fieldsWidth),
+            
+            registerConfirmPasswordField.heightAnchor.constraint(equalToConstant: Constants.fieldHeight),
+            registerConfirmPasswordField.widthAnchor.constraint(equalToConstant: Constants.fieldsWidth),
             
             actionButton.bottomAnchor.constraint(equalTo: contentBubbleView.bottomAnchor, constant: Constants.actionButtonBottomOffsets),
             actionButton.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
@@ -107,7 +168,26 @@ private extension AuthViewController {
 private extension AuthViewController {
     @objc func actionButtonPressed() {
         viewModel.submitLogin()
-        print(234234)
+    }
+
+    @objc func switchToSignInTaped() {
+        if isSignInSelected == false {
+            isSignInSelected = true
+            viewModel.switchToAutherisation()
+            UIView.animate(withDuration: 0.3) {
+                self.underlineView.frame = Constants.underlineViewSignInPosition
+            }
+        }
+    }
+    
+    @objc func switchToSignUpTaped() {
+        if isSignInSelected == true {
+            isSignInSelected = false
+            viewModel.switchToRegistration()
+            UIView.animate(withDuration: 0.3) {
+                self.underlineView.frame = Constants.underlineViewSignUpPosition
+            }
+        }
     }
 }
 
@@ -145,6 +225,23 @@ private extension AuthViewController {
                     self?.actionButton.updateText(with: "Вход")
                 case .none:
                     break
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$authState
+            .sink { [weak self] state in
+                switch state {
+                case .signIn:
+                    self?.loginStackView.isHidden = false
+                    self?.registerStackView.isHidden = true
+                    self?.actionButton.updateText(with: "Вход")
+                    self?.titleLabel.text = "Авторизация"
+                case .signUp:
+                    self?.loginStackView.isHidden = true
+                    self?.registerStackView.isHidden = false
+                    self?.actionButton.updateText(with: "Регистрация")
+                    self?.titleLabel.text = "Регистрация"
                 }
             }
             .store(in: &cancellables)

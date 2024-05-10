@@ -8,10 +8,16 @@ enum ViewStates {
     case none
 }
 
+enum AuthScetionState {
+    case signIn
+    case signUp
+}
+
 final class AuthViewModel {
     @Published var email = ""
     @Published var password = ""
     @Published var state: ViewStates = .none
+    @Published var authState: AuthScetionState = .signIn
     
     var isValidEmailPublisher: AnyPublisher<Bool, Never> {
         $email
@@ -44,6 +50,18 @@ final class AuthViewModel {
             } else {
                 self.state = .failed
             }
+        }
+    }
+    
+    func switchToAutherisation() {
+        if authState != .signIn {
+            authState = .signIn
+        }
+    }
+    
+    func switchToRegistration() {
+        if authState != .signUp {
+            authState = .signUp
         }
     }
     
