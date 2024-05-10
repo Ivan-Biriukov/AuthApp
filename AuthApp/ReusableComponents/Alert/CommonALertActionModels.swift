@@ -17,5 +17,4 @@ enum CommonAlertActionModels {
         title: "Close",
         style: .cancel
     )
-
 }

@@ -28,7 +28,7 @@ final class AuthViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let viewModel = AuthViewModel()
+    private let viewModel = AuthViewModel(authService: AuthService())
     private var isSignInSelected: Bool = true
     private var cancellables = Set<AnyCancellable>()
     
@@ -50,7 +50,7 @@ final class AuthViewController: UIViewController {
     
     private lazy var loginEmailField = AppTextField(style: .email, placeholderText: "Enter your email")
     private lazy var loginPasswordField = AppTextField(style: .password, placeholderText: "Enter password")
-    private lazy var actionButton = AppMainButton(initialText: "Вход", isFilledWithColor: true)
+    private lazy var loginActionButton = AppMainButton(initialText: "Вход", isFilledWithColor: true)
     
     private lazy var loginStackView: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [loginEmailField, loginPasswordField])
@@ -73,6 +73,8 @@ final class AuthViewController: UIViewController {
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
+    
+    private lazy var registrationActionButton = AppMainButton(initialText: "Регистрация", isFilledWithColor: true)
     
     // MARK: - LifeCycle
 
@@ -97,7 +99,8 @@ private extension AuthViewController {
         contentBubbleView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         contentBubbleView.layer.cornerRadius = Constants.contentViewCornerRadius
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        actionButton.addTarget(self, action: #selector(actionButtonPressed), for: .touchUpInside)
+        loginActionButton.addTarget(self, action: #selector(actionButtonPressed), for: .touchUpInside)
+        registrationActionButton.addTarget(self, action: #selector(registerButtonPressed), for: .touchUpInside)
         switchToSignInButton.addTarget(self, action: #selector(switchToSignInTaped), for: .touchUpInside)
         switchToSignUpButton.addTarget(self, action: #selector(switchToSignUpTaped), for: .touchUpInside)
     }
@@ -113,7 +116,8 @@ private extension AuthViewController {
          underlineView,
          loginStackView,
          registerStackView,
-         actionButton].forEach {
+         loginActionButton,
+         registrationActionButton].forEach {
             contentBubbleView.addSubview($0)
         }
     }
@@ -155,10 +159,15 @@ private extension AuthViewController {
             registerConfirmPasswordField.heightAnchor.constraint(equalToConstant: Constants.fieldHeight),
             registerConfirmPasswordField.widthAnchor.constraint(equalToConstant: Constants.fieldsWidth),
             
-            actionButton.bottomAnchor.constraint(equalTo: contentBubbleView.bottomAnchor, constant: Constants.actionButtonBottomOffsets),
-            actionButton.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
-            actionButton.widthAnchor.constraint(equalToConstant: Constants.actionButtonWidth),
-            actionButton.heightAnchor.constraint(equalToConstant: Constants.actionButtonHeight)
+            loginActionButton.bottomAnchor.constraint(equalTo: contentBubbleView.bottomAnchor, constant: Constants.actionButtonBottomOffsets),
+            loginActionButton.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
+            loginActionButton.widthAnchor.constraint(equalToConstant: Constants.actionButtonWidth),
+            loginActionButton.heightAnchor.constraint(equalToConstant: Constants.actionButtonHeight),
+            
+            registrationActionButton.bottomAnchor.constraint(equalTo: contentBubbleView.bottomAnchor, constant: Constants.actionButtonBottomOffsets),
+            registrationActionButton.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
+            registrationActionButton.widthAnchor.constraint(equalToConstant: Constants.actionButtonWidth),
+            registrationActionButton.heightAnchor.constraint(equalToConstant: Constants.actionButtonHeight),
         ])
     }
 }
@@ -168,6 +177,10 @@ private extension AuthViewController {
 private extension AuthViewController {
     @objc func actionButtonPressed() {
         viewModel.submitLogin()
+    }
+    
+    @objc func registerButtonPressed() {
+        viewModel.sumbitRegister()
     }
 
     @objc func switchToSignInTaped() {
@@ -207,22 +220,44 @@ private extension AuthViewController {
             .assign(to: \.password, on: viewModel)
             .store(in: &cancellables)
         
+        NotificationCenter.default
+            .publisher(for: UITextField.textDidChangeNotification, object: registerEmailField)
+            .map { ($0.object as! UITextField).text ?? ""}
+            .assign(to: \.registerEmail, on: viewModel)
+            .store(in: &cancellables)
+        
+        NotificationCenter.default
+            .publisher(for: UITextField.textDidChangeNotification, object: registerFirstEnterPasswordField)
+            .map { ($0.object as! UITextField).text ?? ""}
+            .assign(to: \.registerPassword, on: viewModel)
+            .store(in: &cancellables)
+        
+        NotificationCenter.default
+            .publisher(for: UITextField.textDidChangeNotification, object: registerConfirmPasswordField)
+            .map { ($0.object as! UITextField).text ?? ""}
+            .assign(to: \.registerConfirmPassword, on: viewModel)
+            .store(in: &cancellables)
+        
         viewModel.isLoginEnabled
-            .assign(to: \.isEnabled, on: actionButton)
+            .assign(to: \.isEnabled, on: loginActionButton)
+            .store(in: &cancellables)
+        
+        viewModel.isRegisterEnabled
+            .assign(to: \.isEnabled, on: registrationActionButton)
             .store(in: &cancellables)
         
         viewModel.$state
             .sink { [weak self] state in
                 switch state {
                 case .loading:
-                    self?.actionButton.isEnabled = false
-                    self?.actionButton.updateText(with: "Loading...")
+                    self?.loginActionButton.isEnabled = false
+                    self?.loginActionButton.updateText(with: "Loading...")
                 case .success:
-                    self?.actionButton.isEnabled = true
-                    self?.actionButton.updateText(with: "Вход")
+                    self?.loginActionButton.isEnabled = true
+                    self?.loginActionButton.updateText(with: "Вход")
                 case .failed:
-                    self?.actionButton.isEnabled = true
-                    self?.actionButton.updateText(with: "Вход")
+                    self?.loginActionButton.isEnabled = true
+                    self?.loginActionButton.updateText(with: "Вход")
                 case .none:
                     break
                 }
@@ -235,15 +270,36 @@ private extension AuthViewController {
                 case .signIn:
                     self?.loginStackView.isHidden = false
                     self?.registerStackView.isHidden = true
-                    self?.actionButton.updateText(with: "Вход")
+                    //self?.loginActionButton.updateText(with: "Вход")
                     self?.titleLabel.text = "Авторизация"
+                    self?.registrationActionButton.isHidden = true
+                    self?.loginActionButton.isHidden = false
                 case .signUp:
                     self?.loginStackView.isHidden = true
                     self?.registerStackView.isHidden = false
-                    self?.actionButton.updateText(with: "Регистрация")
+                    //self?.loginActionButton.updateText(with: "Регистрация")
                     self?.titleLabel.text = "Регистрация"
+                    self?.loginActionButton.isHidden = true
+                    self?.registrationActionButton.isHidden = false
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$errorState
+            .sink { [weak self] state in
+                switch state {
+                case .succeed:
+                    self?.presentAlert(AlertBuilder.buildAlertController(for: (self?.viewModel.alertModel)!))
+                case .failure:
+                    self?.presentAlert(AlertBuilder.buildAlertController(for: (self?.viewModel.alertModel)!))
+                case .none:
+                    break
                 }
             }
             .store(in: &cancellables)
     }
 }
+
+// MARK: - AlertPresentable
+
+extension AuthViewController: AlertPresentable {}

@@ -1,7 +1,6 @@
 import UIKit
 
 final class AlertBuilder {
-
     static func buildAlertController(for model: AlertModel) -> UIAlertController {
         let alertController = UIAlertController(
             title: model.title,
@@ -29,8 +28,6 @@ final class AlertBuilder {
                 )
             )
         }
-
         return alertController
     }
-
 }
