@@ -24,6 +24,10 @@ fileprivate enum Constants {
     static let commonInsetValue: CGFloat = 20
     static let restorePasswordTopConstraints: CGFloat = 20
     static let restorePasswordTrailingConstraints: CGFloat = -20
+    static let activityIndicatorSizes: CGFloat = 100
+    static let activityIndicatorTopConstraints: CGFloat = UIScreen.main.bounds.height / 2 - 100
+    static let googleSignInButtonSizes: CGFloat = 60
+    static let googleSignInButtonBottomConstraints: CGFloat = -10
 }
 
 // MARK: - AuthViewController
@@ -90,6 +94,11 @@ final class AuthViewController: UIViewController {
     }()
     
     private lazy var restorePassword = AppMainButton(initialText: "Восстановить пароль", isFilledWithColor: false, isSmallTextNeeded: true)
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
     
     // MARK: - LifeCycle
 
@@ -123,7 +132,8 @@ private extension AuthViewController {
     func addSubviews() {
         [titleLabel,
          googleSignInButton,
-         contentBubbleView].forEach {
+         contentBubbleView,
+         activityIndicator].forEach {
             view.addSubview($0)
         }
         
@@ -149,10 +159,10 @@ private extension AuthViewController {
             contentBubbleView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             contentBubbleView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            googleSignInButton.widthAnchor.constraint(equalToConstant: 60),
-            googleSignInButton.heightAnchor.constraint(equalToConstant: 60),
+            googleSignInButton.widthAnchor.constraint(equalToConstant: Constants.googleSignInButtonSizes),
+            googleSignInButton.heightAnchor.constraint(equalToConstant: Constants.googleSignInButtonSizes),
             googleSignInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            googleSignInButton.bottomAnchor.constraint(equalTo: contentBubbleView.topAnchor, constant: -10),
+            googleSignInButton.bottomAnchor.constraint(equalTo: contentBubbleView.topAnchor, constant: Constants.googleSignInButtonBottomConstraints),
             
             switchToSignInButton.leadingAnchor.constraint(equalTo: contentBubbleView.leadingAnchor, constant: Constants.commonInsetValue),
             switchToSignInButton.topAnchor.constraint(equalTo: contentBubbleView.topAnchor, constant: Constants.commonInsetValue),
@@ -192,7 +202,12 @@ private extension AuthViewController {
             registrationActionButton.heightAnchor.constraint(equalToConstant: Constants.actionButtonHeight),
             
             restorePassword.topAnchor.constraint(equalTo: loginStackView.bottomAnchor, constant: Constants.restorePasswordTopConstraints),
-            restorePassword.trailingAnchor.constraint(equalTo: contentBubbleView.trailingAnchor, constant: Constants.restorePasswordTrailingConstraints)
+            restorePassword.trailingAnchor.constraint(equalTo: contentBubbleView.trailingAnchor, constant: Constants.restorePasswordTrailingConstraints),
+            
+            activityIndicator.heightAnchor.constraint(equalToConstant: Constants.activityIndicatorSizes),
+            activityIndicator.widthAnchor.constraint(equalToConstant: Constants.activityIndicatorSizes),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.activityIndicatorTopConstraints)
         ])
     }
 }
@@ -201,6 +216,7 @@ private extension AuthViewController {
 
 private extension AuthViewController {
     @objc func actionButtonPressed() {
+//        activityIndicator.startAnimating()
         viewModel.submitLogin()
     }
     
@@ -315,17 +331,28 @@ private extension AuthViewController {
             .store(in: &cancellables)
         
         viewModel.$state
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 switch state {
                 case .loading:
-                    self?.loginActionButton.isEnabled = false
-                    self?.loginActionButton.updateText(with: "Loading...")
-                case .success:
-                    self?.loginActionButton.isEnabled = true
-                    self?.loginActionButton.updateText(with: "Вход")
-                case .failed:
-                    self?.loginActionButton.isEnabled = true
-                    self?.loginActionButton.updateText(with: "Вход")
+                    self?.activityIndicator.startAnimating()
+                    self?.switchToSignInButton.isEnabled = false
+                    self?.switchToSignUpButton.isEnabled = false
+                    self?.loginEmailField.isEnabled = false
+                    self?.loginPasswordField.isEnabled = false
+                    self?.restorePassword.isEnabled = false
+                    self?.registerEmailField.isEnabled = false
+                    self?.registerFirstEnterPasswordField.isEnabled = false
+                    self?.registerConfirmPasswordField.isEnabled = false
+                case .success, .failed:
+                    self?.switchToSignInButton.isEnabled = true
+                    self?.switchToSignUpButton.isEnabled = true
+                    self?.loginEmailField.isEnabled = true
+                    self?.loginPasswordField.isEnabled = true
+                    self?.restorePassword.isEnabled = true
+                    self?.registerEmailField.isEnabled = true
+                    self?.registerFirstEnterPasswordField.isEnabled = true
+                    self?.registerConfirmPasswordField.isEnabled = true
                 case .none:
                     break
                 }
@@ -333,6 +360,7 @@ private extension AuthViewController {
             .store(in: &cancellables)
         
         viewModel.$authState
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 switch state {
                 case .signIn:
@@ -354,7 +382,9 @@ private extension AuthViewController {
             .store(in: &cancellables)
         
         viewModel.$errorState
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
+                self?.activityIndicator.stopAnimating()
                 switch state {
                 case .succeed:
                     self?.presentAlert(AlertBuilder.buildAlertController(for: (self?.viewModel.alertModel)!))

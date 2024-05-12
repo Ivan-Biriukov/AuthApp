@@ -145,9 +145,12 @@ final class AuthViewModel {
     }
     
     func submitGoogleLogin(with credential:AuthCredential) {
+        state = .loading
+        
         authService.googleLogin(with: credential) { [weak self] (result) in
             switch result {
             case .success(_):
+                self?.state = .success
                 self?.errorState = .succeed
                 self?.alertModel = .init(
                     title: "Успех",
@@ -156,6 +159,7 @@ final class AuthViewModel {
                     actionModels: [CommonAlertActionModels.closeAction]
                 )
             case .failure(let error):
+                self?.state = .failed
                 self?.errorState = .failure
                 self?.alertModel = .init(
                     title: "Ошибка авторизации",
@@ -168,8 +172,11 @@ final class AuthViewModel {
     }
     
     func submitPasswordRecovery(for email: String) {
+        state = .loading
+        
         authService.resotrePassword(for: email) { [weak self] error in
             if let e = error {
+                self?.state = .failed
                 self?.errorState = .failure
                 self?.alertModel = .init(
                     title: "Ошибка восстановления",
@@ -178,6 +185,7 @@ final class AuthViewModel {
                     actionModels: [CommonAlertActionModels.closeAction]
                 )
             } else {
+                self?.state = .success
                 self?.errorState = .succeed
                 self?.alertModel = .init(
                     title: "Успешно",

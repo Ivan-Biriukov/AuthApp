@@ -64,7 +64,7 @@ final class AuthService: AuthServiceProtocol {
         Auth.auth().sendPasswordReset(withEmail: email) { error in
             switch error {
             case .none:
-                break
+                completion(nil)
             case .some(let e):
                 completion(e)
             }
