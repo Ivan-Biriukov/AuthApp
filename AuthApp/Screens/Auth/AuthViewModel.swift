@@ -37,6 +37,7 @@ final class AuthViewModel {
     @Published var authState: AuthScetionState = .signIn
     @Published var errorState: ErorrState = .none
     @Published var alertModel: AlertModel = .init(prefferedStyle: .alert)
+    @Published var presentMainScreen: Bool = false
     
     private let authService: AuthServiceProtocol
     
@@ -99,7 +100,12 @@ final class AuthViewModel {
                             title: "Данные загрузились",
                             message: "Авторизация прошла успешно!",
                             prefferedStyle: .alert,
-                            actionModels: [CommonAlertActionModels.closeAction]
+                            actionModels: [AlertActionModel(
+                                title: "Ok",
+                                style: .default, handler: { [weak self] alertAction in
+                                    self?.presentMainScreen = true
+                                })
+                            ]
                         )
                     case .failure(let error):
                         self.state = .failed
@@ -110,6 +116,7 @@ final class AuthViewModel {
                             prefferedStyle: .alert,
                             actionModels: [CommonAlertActionModels.closeAction]
                         )
+                        self.presentMainScreen = false
                 }
             }
         }
@@ -156,7 +163,12 @@ final class AuthViewModel {
                     title: "Успех",
                     message: "Вход через google успешно выполнен",
                     prefferedStyle: .alert,
-                    actionModels: [CommonAlertActionModels.closeAction]
+                    actionModels: [AlertActionModel(
+                        title: "Ok",
+                        style: .default, handler: { [weak self] alertAction in
+                            self?.presentMainScreen = true
+                        })
+                    ]
                 )
             case .failure(let error):
                 self?.state = .failed
