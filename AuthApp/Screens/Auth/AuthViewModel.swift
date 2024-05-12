@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseAuth
 import Combine
 
 // MARK: - Conditions States
@@ -141,7 +142,29 @@ final class AuthViewModel {
                 }
             }
         }
-        
+    }
+    
+    func sumbitGoogleLogin(with credential:AuthCredential) {
+        authService.googleLogin(with: credential) { [weak self] (result) in
+            switch result {
+            case .success(_):
+                self?.errorState = .succeed
+                self?.alertModel = .init(
+                    title: "Успех",
+                    message: "Вход через google успешно выполнен",
+                    prefferedStyle: .alert,
+                    actionModels: [CommonAlertActionModels.closeAction]
+                )
+            case .failure(let error):
+                self?.errorState = .failure
+                self?.alertModel = .init(
+                    title: "Ошибка авторизации",
+                    message: "В ходе авторизации возникли следующие ошибки: \(error.localizedDescription)",
+                    prefferedStyle: .alert,
+                    actionModels: [CommonAlertActionModels.closeAction]
+                )
+            }
+        }
     }
     
     func switchToAutherisation() {

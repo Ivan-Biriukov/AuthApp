@@ -2,6 +2,8 @@
 
 import UIKit
 import Combine
+import Firebase
+import GoogleSignIn
 
 // MARK: - Constants
 
@@ -76,6 +78,15 @@ final class AuthViewController: UIViewController {
     
     private lazy var registrationActionButton = AppMainButton(initialText: "Регистрация", isFilledWithColor: true)
     
+    private lazy var googleSignInButton: UIButton = {
+        let btn = UIButton()
+        btn.setImage(AppImages.googleImage, for: .normal)
+        btn.addTarget(self, action: #selector(googleTapped), for: .touchUpInside)
+        btn.layer.cornerRadius = 30
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        return btn
+    }()
+    
     // MARK: - LifeCycle
 
     override func viewDidLoad() {
@@ -91,7 +102,6 @@ final class AuthViewController: UIViewController {
 // MARK: - Configure
 
 private extension AuthViewController {
-    
     func initialConfigure() {
         view.backgroundColor = Constants.mainBackgroundColor
         contentBubbleView.translatesAutoresizingMaskIntoConstraints = false
@@ -107,6 +117,7 @@ private extension AuthViewController {
     
     func addSubviews() {
         [titleLabel,
+         googleSignInButton,
          contentBubbleView].forEach {
             view.addSubview($0)
         }
@@ -131,6 +142,11 @@ private extension AuthViewController {
             contentBubbleView.heightAnchor.constraint(equalToConstant: Constants.contentViewHeight),
             contentBubbleView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             contentBubbleView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            googleSignInButton.widthAnchor.constraint(equalToConstant: 60),
+            googleSignInButton.heightAnchor.constraint(equalToConstant: 60),
+            googleSignInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            googleSignInButton.bottomAnchor.constraint(equalTo: contentBubbleView.topAnchor, constant: -10),
             
             switchToSignInButton.leadingAnchor.constraint(equalTo: contentBubbleView.leadingAnchor, constant: Constants.commonInsetValue),
             switchToSignInButton.topAnchor.constraint(equalTo: contentBubbleView.topAnchor, constant: Constants.commonInsetValue),
@@ -182,7 +198,7 @@ private extension AuthViewController {
     @objc func registerButtonPressed() {
         viewModel.sumbitRegister()
     }
-
+    
     @objc func switchToSignInTaped() {
         if isSignInSelected == false {
             isSignInSelected = true
@@ -200,6 +216,29 @@ private extension AuthViewController {
             UIView.animate(withDuration: 0.3) {
                 self.underlineView.frame = Constants.underlineViewSignUpPosition
             }
+        }
+    }
+    
+    @objc func googleTapped() {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+        
+        GIDSignIn.sharedInstance.signIn(withPresenting: self) {  result, error in
+            guard error == nil else {
+                return
+            }
+            
+            guard let user = result?.user,
+                  let idToken = user.idToken?.tokenString
+            else {
+                return
+            }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                           accessToken: user.accessToken.tokenString)
+            self.viewModel.sumbitGoogleLogin(with: credential)
         }
     }
 }
