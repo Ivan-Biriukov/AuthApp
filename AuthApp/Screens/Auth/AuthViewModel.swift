@@ -115,7 +115,7 @@ final class AuthViewModel {
         }
     }
     
-    func sumbitRegister() {
+    func submitRegister() {
         state = .loading
         
         authService.createUser(email: registerEmail, password: registerConfirmPassword) { result in
@@ -144,7 +144,7 @@ final class AuthViewModel {
         }
     }
     
-    func sumbitGoogleLogin(with credential:AuthCredential) {
+    func submitGoogleLogin(with credential:AuthCredential) {
         authService.googleLogin(with: credential) { [weak self] (result) in
             switch result {
             case .success(_):
@@ -160,6 +160,28 @@ final class AuthViewModel {
                 self?.alertModel = .init(
                     title: "Ошибка авторизации",
                     message: "В ходе авторизации возникли следующие ошибки: \(error.localizedDescription)",
+                    prefferedStyle: .alert,
+                    actionModels: [CommonAlertActionModels.closeAction]
+                )
+            }
+        }
+    }
+    
+    func submitPasswordRecovery(for email: String) {
+        authService.resotrePassword(for: email) { [weak self] error in
+            if let e = error {
+                self?.errorState = .failure
+                self?.alertModel = .init(
+                    title: "Ошибка восстановления",
+                    message: "При попытке восстановления пароля возникли следующие ошибки: \(e.localizedDescription) \n Пожалуйста повторите попытку.",
+                    prefferedStyle: .alert,
+                    actionModels: [CommonAlertActionModels.closeAction]
+                )
+            } else {
+                self?.errorState = .succeed
+                self?.alertModel = .init(
+                    title: "Успешно",
+                    message: "На указанный адрес электронной почты было отправлено письмо с инструкциями по восстановлению пароля!",
                     prefferedStyle: .alert,
                     actionModels: [CommonAlertActionModels.closeAction]
                 )

@@ -6,6 +6,7 @@ protocol AuthServiceProtocol {
     func createUser(email: String, password: String, completion: @escaping (Result<User, Error>) -> ())
     func loginUser(email: String, password: String, completion: @escaping (Result<User, Error>) -> ())
     func googleLogin(with credential: AuthCredential, completion: @escaping (Result<User, Error>) -> ())
+    func resotrePassword(for email: String, completion: @escaping (Error?) -> ())
     func logout(completion: @escaping (Result<Bool, Error>) -> ())
 }
 
@@ -55,6 +56,17 @@ final class AuthService: AuthServiceProtocol {
                 completion(.success(user))
             } else {
                 completion(.failure(AuthError.unknownError))
+            }
+        }
+    }
+    
+    func resotrePassword(for email: String, completion: @escaping (Error?) -> ()) {
+        Auth.auth().sendPasswordReset(withEmail: email) { error in
+            switch error {
+            case .none:
+                break
+            case .some(let e):
+                completion(e)
             }
         }
     }

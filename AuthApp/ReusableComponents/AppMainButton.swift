@@ -10,6 +10,7 @@ final class AppMainButton: UIButton {
     
     private var initialText: String
     private var isFilledWithColor: Bool
+    private var isSmallTextNeeded: Bool
     private let constants = Constants()
     
     override var isEnabled: Bool {
@@ -20,9 +21,10 @@ final class AppMainButton: UIButton {
     
     // MARK: - .init()
     
-    init(initialText: String, isFilledWithColor: Bool) {
+    init(initialText: String, isFilledWithColor: Bool, isSmallTextNeeded: Bool = false) {
         self.initialText = initialText
         self.isFilledWithColor = isFilledWithColor
+        self.isSmallTextNeeded = isSmallTextNeeded
         super.init(frame: .zero)
         configure()
     }
@@ -43,7 +45,6 @@ final class AppMainButton: UIButton {
 private extension AppMainButton {
     func configure() {
         setTitle(initialText, for: .normal)
-        titleLabel?.font = AppFonts.actionButtonFont
         translatesAutoresizingMaskIntoConstraints = false
 
         switch isFilledWithColor {
@@ -51,6 +52,13 @@ private extension AppMainButton {
             layer.cornerRadius = constants.cornerRadius
         case false:
             setTitleColor(AppColors.mainBG, for: .normal)
+        }
+        
+        switch isSmallTextNeeded {
+        case true:
+            titleLabel?.font = AppFonts.actionButtonSmallFont
+        case false:
+            titleLabel?.font = AppFonts.actionButtonFont
         }
     }
     

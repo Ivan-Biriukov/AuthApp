@@ -22,6 +22,8 @@ fileprivate enum Constants {
     static let underlineViewSignInPosition: CGRect = CGRect(x: 20, y: 60, width: 80, height: 4)
     static let underlineViewSignUpPosition: CGRect = CGRect(x: Int(UIScreen.main.bounds.width) - 110, y: 60, width: 90, height: 4)
     static let commonInsetValue: CGFloat = 20
+    static let restorePasswordTopConstraints: CGFloat = 20
+    static let restorePasswordTrailingConstraints: CGFloat = -20
 }
 
 // MARK: - AuthViewController
@@ -87,6 +89,8 @@ final class AuthViewController: UIViewController {
         return btn
     }()
     
+    private lazy var restorePassword = AppMainButton(initialText: "Восстановить пароль", isFilledWithColor: false, isSmallTextNeeded: true)
+    
     // MARK: - LifeCycle
 
     override func viewDidLoad() {
@@ -113,6 +117,7 @@ private extension AuthViewController {
         registrationActionButton.addTarget(self, action: #selector(registerButtonPressed), for: .touchUpInside)
         switchToSignInButton.addTarget(self, action: #selector(switchToSignInTaped), for: .touchUpInside)
         switchToSignUpButton.addTarget(self, action: #selector(switchToSignUpTaped), for: .touchUpInside)
+        restorePassword.addTarget(self, action: #selector(restorePasTaped), for: .touchUpInside)
     }
     
     func addSubviews() {
@@ -128,7 +133,8 @@ private extension AuthViewController {
          loginStackView,
          registerStackView,
          loginActionButton,
-         registrationActionButton].forEach {
+         registrationActionButton,
+         restorePassword].forEach {
             contentBubbleView.addSubview($0)
         }
     }
@@ -184,6 +190,9 @@ private extension AuthViewController {
             registrationActionButton.centerXAnchor.constraint(equalTo: contentBubbleView.centerXAnchor),
             registrationActionButton.widthAnchor.constraint(equalToConstant: Constants.actionButtonWidth),
             registrationActionButton.heightAnchor.constraint(equalToConstant: Constants.actionButtonHeight),
+            
+            restorePassword.topAnchor.constraint(equalTo: loginStackView.bottomAnchor, constant: Constants.restorePasswordTopConstraints),
+            restorePassword.trailingAnchor.constraint(equalTo: contentBubbleView.trailingAnchor, constant: Constants.restorePasswordTrailingConstraints)
         ])
     }
 }
@@ -196,7 +205,7 @@ private extension AuthViewController {
     }
     
     @objc func registerButtonPressed() {
-        viewModel.sumbitRegister()
+        viewModel.submitRegister()
     }
     
     @objc func switchToSignInTaped() {
@@ -238,8 +247,28 @@ private extension AuthViewController {
             
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                            accessToken: user.accessToken.tokenString)
-            self.viewModel.sumbitGoogleLogin(with: credential)
+            self.viewModel.submitGoogleLogin(with: credential)
         }
+    }
+    
+    @objc func restorePasTaped() {
+        let alert = UIAlertController(
+            title: "Восстановление пароля",
+            message: "Введите ваш адрес E-mail, зарегистрированный в системе, на который прийдет инструкция для восстановления пароля.",
+            preferredStyle: .alert
+        )
+        
+        alert.addTextField { (textField) in
+            textField.placeholder = "Account e-mail"
+        }
+        
+        let action = UIAlertAction(title: "Send an e-mail", style: .default) { [weak self] action in
+            if let text = alert.textFields?[0].text {
+                self?.viewModel.submitPasswordRecovery(for: text)
+            }
+        }
+        alert.addAction(action)
+        self.present(alert, animated: true)
     }
 }
 
@@ -309,17 +338,17 @@ private extension AuthViewController {
                 case .signIn:
                     self?.loginStackView.isHidden = false
                     self?.registerStackView.isHidden = true
-                    //self?.loginActionButton.updateText(with: "Вход")
                     self?.titleLabel.text = "Авторизация"
                     self?.registrationActionButton.isHidden = true
                     self?.loginActionButton.isHidden = false
+                    self?.restorePassword.isHidden = false
                 case .signUp:
                     self?.loginStackView.isHidden = true
                     self?.registerStackView.isHidden = false
-                    //self?.loginActionButton.updateText(with: "Регистрация")
                     self?.titleLabel.text = "Регистрация"
                     self?.loginActionButton.isHidden = true
                     self?.registrationActionButton.isHidden = false
+                    self?.restorePassword.isHidden = true
                 }
             }
             .store(in: &cancellables)
