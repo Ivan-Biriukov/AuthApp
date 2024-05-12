@@ -1,9 +1,8 @@
-// MARK: - Imports
-
 import UIKit
 import Combine
 import Firebase
 import GoogleSignIn
+import WebKit
 
 // MARK: - Constants
 
@@ -11,6 +10,7 @@ fileprivate enum Constants {
     static let mainBackgroundColor: UIColor? = .init(named: "background")
     static let contentViewBackgroundColor: UIColor? = .init(named: "additionalyBackground")
     static let titleLabelTopInsets: CGFloat = 120
+    static let titleLabelFontSize: CGFloat = 33
     static let contentViewWidth: CGFloat = UIScreen.main.bounds.width
     static let contentViewHeight: CGFloat = UIScreen.main.bounds.height / 1.7
     static let contentViewCornerRadius: CGFloat = 40
@@ -28,6 +28,8 @@ fileprivate enum Constants {
     static let activityIndicatorTopConstraints: CGFloat = UIScreen.main.bounds.height / 2 - 100
     static let googleSignInButtonSizes: CGFloat = 60
     static let googleSignInButtonBottomConstraints: CGFloat = -10
+    static let googleSignInButtonCornerRadius: CGFloat = 30
+    static let presentingPageURLAdress: String = "https://aezakmi.group"
 }
 
 // MARK: - AuthViewController
@@ -43,7 +45,7 @@ final class AuthViewController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let lb = UILabel()
         lb.textColor = AppColors.defaultTextColor
-        lb.font = AppFonts.getFont(ofSize: 33, weight: .bold)
+        lb.font = AppFonts.getFont(ofSize: Constants.titleLabelFontSize, weight: .bold)
         return lb
     }()
     private lazy var contentBubbleView = UIView()
@@ -88,7 +90,7 @@ final class AuthViewController: UIViewController {
         let btn = UIButton()
         btn.setImage(AppImages.googleImage, for: .normal)
         btn.addTarget(self, action: #selector(googleTapped), for: .touchUpInside)
-        btn.layer.cornerRadius = 30
+        btn.layer.cornerRadius = Constants.googleSignInButtonCornerRadius
         btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
@@ -109,6 +111,22 @@ final class AuthViewController: UIViewController {
         addSubviews()
         setupConstraints()
         bindViewModel()
+    }
+    
+    // MARK: - Methods
+    
+    private func presentNextStepScreen() {
+        if let url = URL(string: Constants.presentingPageURLAdress) {
+            let webView = WKWebView()
+            let request = URLRequest(url: url)
+            webView.load(request)
+            
+            let viewController = UIViewController()
+            viewController.view = webView
+            viewController.modalPresentationStyle = .fullScreen
+            
+            self.present(viewController, animated: true)
+        }
     }
 }
 
@@ -216,7 +234,6 @@ private extension AuthViewController {
 
 private extension AuthViewController {
     @objc func actionButtonPressed() {
-//        activityIndicator.startAnimating()
         viewModel.submitLogin()
     }
     
@@ -392,6 +409,15 @@ private extension AuthViewController {
                     self?.presentAlert(AlertBuilder.buildAlertController(for: (self?.viewModel.alertModel)!))
                 case .none:
                     break
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$presentMainScreen
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] shouldPresentMainScreen in
+                if shouldPresentMainScreen {
+                    self?.presentNextStepScreen()
                 }
             }
             .store(in: &cancellables)
